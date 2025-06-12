@@ -26,11 +26,13 @@ public class UserController {
                 throw new RuntimeException("Invalid Password value.");
             }
 
+            // 저장할 유저 만들기
             UserEntity user=UserEntity.builder()
                     .username(userDTO.getUsername())
                     .password(userDTO.getPassword())
                     .build();
 
+            // 레포지토리에 유저 저장
             UserEntity registeredUser=userService.create(user);
             UserDTO responseUserDTO=UserDTO.builder()
                     .id(registeredUser.getId())

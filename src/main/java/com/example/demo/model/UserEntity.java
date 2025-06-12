@@ -22,6 +22,6 @@ public class UserEntity {
     @Column(nullable=false)
     private String username; // 아이디로 사용할 유저네임(이메일 or 문자열)
     private String password;
-    private String role; // 어디민/일반사용자
+    private String role; // 어드민/일반사용자
     private String authProvider; // 이후 OAuth에서 사용할 유저 정보 제공자 : github
 }

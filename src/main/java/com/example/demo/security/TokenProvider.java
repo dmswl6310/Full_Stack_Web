@@ -1,58 +1,49 @@
 package com.example.demo.security;
 
 import com.example.demo.model.UserEntity;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import javax.crypto.SecretKey;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-@Slf4j
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+
 @Service
 public class TokenProvider {
-    private static final String SECRET_KEY = "eko3aaaaaaaaaaaaaaaaafdwwwwwwwwwwwwwwwwwwwwwafdwafwsfoewskfoeejwifleiwlfhliiwhfi2les5ifeshfleisfeslfhsifehf";
 
-    public String create(UserEntity userEntity) {
-        // 기한 지금으로부터 1일로 설정
-        Date expiryDate = Date.from(
-                Instant.now()
-                    .plus(1, ChronoUnit.DAYS));
+    // ✅ 최소 32바이트 이상인 시크릿 키 필요 (HS256 기준)
+    private static final String SECRET_KEY = "rHC46RLCqUL7FSlWEm6EVrmdEuQeAW9CBnEDaPqgIuI=";
+    private static final long EXPIRATION_TIME = 86400000; // 1 day
 
-        // JWT Token 생성
+    // ✅ SecretKey 객체로 고정 생성
+    private final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+
+    /**
+     * 토큰 생성
+     */
+    public String create(UserEntity user) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
+
         return Jwts.builder()
-                // header내용과 서명을 위한 SECRET_KEY
-                .signWith(SignatureAlgorithm.HS512,SECRET_KEY)
-                // payload에 들어갈 내용
-                .setSubject(userEntity.getId()) // sub
-                .setIssuer("demo app")  // iss
-                .setIssuedAt(new Date()) // iat
-                .setExpiration(expiryDate)  // exp
+                .setSubject(user.getId()) // 유저 식별값
+                .setIssuedAt(now) // 발행 시간
+                .setExpiration(expiryDate) // 만료 시간
+                .signWith(key, SignatureAlgorithm.HS256) // ✅ 서명
                 .compact();
     }
 
+    /**
+     * 토큰 검증 및 사용자 ID 추출
+     */
     public String validateAndGetUserId(String token) {
-        // 1. Key 준비 (최소 256비트 → 32바이트 이상 문자열 필요)
-        SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key) // ✅ 같은 key 객체 사용
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
 
-        // 2. ParserBuilder 사용
-        JwtParser parser = Jwts
-                .parser()
-                .verifyWith(key) // 0.12.6부터는 verifyWith로 서명 키 설정
-                .build();
-
-        // 3. 파싱 및 subject 추출
-        Claims claims = parser
-                .parseSignedClaims(token) // 예전의 parseClaimsJws에 해당
-                .getPayload();
-
-        return claims.getSubject(); // subject는 일반적으로 userId 같은 것
+        return claims.getSubject(); // userId
     }
 }
-

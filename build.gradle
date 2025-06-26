@@ -41,10 +41,32 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
 
-runtimeOnly 'mysql:mysql-connector-java'
+task('release') {
+	// ./gradlew build를 먼저 실행해라
+	dependsOn("build")
+
+	doLast {
+		def stdout = new ByteArrayOutputStream()
+		// exec - 커맨드 라인 프로세서: 터미널에서 실행하는 것과 같음
+		exec {
+			commandLine 'eb', 'setenv', 'SPRING_PROFILES_ACTIVE=prod'
+			standardOutput = stdout
+		}
+		// 결과 로깅을 위한 작업
+		println "eb setenv SPRING_PROFILES_ACTIVE=prod :\n$stdout";
+		exec {
+			// eb deploy
+			commandLine 'eb', 'deploy'
+			standardOutput = stdout
+		}
+		println "eb deploy :\n$stdout";
+		println "Release succeded."
+	}
+}

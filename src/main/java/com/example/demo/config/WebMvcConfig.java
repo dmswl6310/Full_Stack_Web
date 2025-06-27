@@ -12,7 +12,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 //Origin이 http:localhost:3000에 대해
-                .allowedOrigins("http://localhost:3000", "http://first-prod-on-todo-ui-service.ap-northeast-2.elasticbeanstalk.com/")
+                .allowedOrigins("http://localhost:3000", "http://app.fullstack-eunji.com","https://app.fullstack-eunji.com")
                 // GET, POST, PUT, PATCH, DELETE, OPTIONS 메서드를 허용
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")

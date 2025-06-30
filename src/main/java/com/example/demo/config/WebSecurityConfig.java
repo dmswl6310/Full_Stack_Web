@@ -40,12 +40,17 @@ public class WebSecurityConfig {
                 // 권한 및 요청 설정
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 허용되는 경로
-                        .requestMatchers("/", "/auth/**").permitAll()
+                        .requestMatchers("/", "/auth/**","/oauth2/**").permitAll()
 
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
 
+                .oauth2Login(oauth2 -> oauth2
+                        .redirectionEndpoint(redirection ->
+                                redirection.baseUri("/oauth2/callback/*")
+                        )// 예시
+                )
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 

@@ -3,16 +3,19 @@ package com.example.demo.security;
 import com.example.demo.model.UserEntity;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Service
 public class TokenProvider {
 
-    // ✅ 최소 32바이트 이상인 시크릿 키 필요 (HS256 기준)
+    // ✅ 최소 32바이트 이상인 시크릿 키 필요 (HS512 기준)
     private static final String SECRET_KEY = "rHC46RLCqUL7FSlWEm6EVrmdEuQeAW9CBnEDaPqgIuI=";
     private static final long EXPIRATION_TIME = 86400000; // 1 day
 
@@ -23,14 +26,26 @@ public class TokenProvider {
      * 토큰 생성
      */
     public String create(UserEntity user) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
+        Date expiryDate = Date.from(Instant.now().plus(1, ChronoUnit.DAYS));
 
         return Jwts.builder()
                 .setSubject(user.getId()) // 유저 식별값
-                .setIssuedAt(now) // 발행 시간
+                .setIssuedAt(new Date()) // 발행 시간
                 .setExpiration(expiryDate) // 만료 시간
-                .signWith(key, SignatureAlgorithm.HS256) // ✅ 서명
+                .signWith(key, SignatureAlgorithm.HS512) // ✅ 서명
+                .compact();
+    }
+
+    public String create(final Authentication authentication) {
+        ApplicationOAuth2User userPrincipal=(ApplicationOAuth2User) authentication.getPrincipal();
+
+        Date expiryDate = Date.from(Instant.now().plus(1, ChronoUnit.DAYS));
+
+        return Jwts.builder()
+                .setSubject(userPrincipal.getName()) // 유저 식별값
+                .setIssuedAt(new Date()) // 발행 시간
+                .setExpiration(expiryDate) // 만료 시간
+                .signWith(key, SignatureAlgorithm.HS512) // ✅ 서명
                 .compact();
     }
 

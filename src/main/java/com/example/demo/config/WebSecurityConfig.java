@@ -1,7 +1,9 @@
 package com.example.demo.config;
 
 import com.example.demo.security.JwtAuthenticationFilter;
+import com.example.demo.security.OAuthSuccessHandler;
 import com.example.demo.security.OAuthUserServiceImpl;
+import com.example.demo.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +19,27 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
-@Configuration
+//@Configuration
+
+//@RequiredArgsConstructor
 @EnableWebSecurity
-@RequiredArgsConstructor
 @Slf4j
 public class WebSecurityConfig {
+//    private final TokenProvider tokenProvider;
+//    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+//    private final OAuthUserServiceImpl oAuthUserService; // 만든 OAuthUserServiceImpl추가
+//    private final OAuthSuccessHandler oAuthSuccessHandler;
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final OAuthUserServiceImpl oAuthUserService; // 만든 OAuthUserServiceImpl추가
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Autowired
+    private OAuthUserServiceImpl oAuthUserService; // 만든 OAuthUserServiceImpl추가
+
+    @Autowired
+    private OAuthSuccessHandler oAuthSuccessHandler;
+
+//    @Override
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
@@ -54,7 +68,8 @@ public class WebSecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .redirectionEndpoint(redirection ->
                                 redirection.baseUri("/oauth2/callback/*"))
-                        .userInfoEndpoint(userInfo -> userInfo.userService(oAuthUserService))
+                        .userInfoEndpoint(user->user.userService(oAuthUserService))
+                        .successHandler(oAuthSuccessHandler)
                 )
 
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록

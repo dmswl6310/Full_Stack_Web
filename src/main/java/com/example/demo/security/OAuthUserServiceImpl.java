@@ -47,8 +47,11 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
                     .build();
             userEntity=userRepository.save(userEntity);
         }
+        else{
+            userEntity=userRepository.findByUsername(username);
+        }
 
         log.info("Successfully pulled userinfo username {} authProvider {}",username,authProvider);
-        return oAuth2User;
+        return new ApplicationOAuth2User(userEntity.getId(),oAuth2User.getAttributes());
     }
 }

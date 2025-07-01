@@ -19,10 +19,12 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication){
         TokenProvider tokenProvider=new TokenProvider();
-//        tokenProvider.create(authentication);
         String token=tokenProvider.create(authentication);
         try {
-            response.getWriter().write(token);
+            response.setContentType("text/plain;charset=UTF-8");
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write("{\"token\": \"" + token + "\"}");
+//            response.getWriter().flush();
         }catch(Exception e){
             log.error("Failed to write token to response",e);
         }

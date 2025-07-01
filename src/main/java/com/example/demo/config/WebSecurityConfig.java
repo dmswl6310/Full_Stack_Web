@@ -68,6 +68,7 @@ public class WebSecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .redirectionEndpoint(redirection ->
                                 redirection.baseUri("/oauth2/callback/*"))
+//                        .defaultSuccessUrl("/auth/login", true)
                         .userInfoEndpoint(user->user.userService(oAuthUserService))
                         .successHandler(oAuthSuccessHandler)
                 )

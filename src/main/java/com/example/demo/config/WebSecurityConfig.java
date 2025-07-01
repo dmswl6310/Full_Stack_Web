@@ -23,21 +23,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 //@RequiredArgsConstructor
 @EnableWebSecurity
+@RequiredArgsConstructor
 @Slf4j
 public class WebSecurityConfig {
-//    private final TokenProvider tokenProvider;
-//    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-//    private final OAuthUserServiceImpl oAuthUserService; // 만든 OAuthUserServiceImpl추가
-//    private final OAuthSuccessHandler oAuthSuccessHandler;
+    private final TokenProvider tokenProvider;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuthUserServiceImpl oAuthUserService; // 만든 OAuthUserServiceImpl추가
+    private final OAuthSuccessHandler oAuthSuccessHandler;
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    @Autowired
-    private OAuthUserServiceImpl oAuthUserService; // 만든 OAuthUserServiceImpl추가
-
-    @Autowired
-    private OAuthSuccessHandler oAuthSuccessHandler;
 
 //    @Override
     @Bean
@@ -67,8 +60,7 @@ public class WebSecurityConfig {
 
                 .oauth2Login(oauth2 -> oauth2
                         .redirectionEndpoint(redirection ->
-                                redirection.baseUri("/oauth2/callback/*"))
-//                        .defaultSuccessUrl("/auth/login", true)
+                                redirection.baseUri("/oauth2/login/code/*"))
                         .userInfoEndpoint(user->user.userService(oAuthUserService))
                         .successHandler(oAuthSuccessHandler)
                 )

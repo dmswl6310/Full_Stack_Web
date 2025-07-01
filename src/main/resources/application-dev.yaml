@@ -6,7 +6,7 @@ spring:
           github:
             clientId: "Ov23ctH8Zom9gynsyr7r"
             clientSecret: "ec0cb90e35063476c3f25293f9d0a73330217f6b"
-            redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
+            redirectUri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope:
               - user:email
               - read:user

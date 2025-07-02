@@ -1,9 +1,6 @@
 package com.example.demo.config;
 
-import com.example.demo.security.JwtAuthenticationFilter;
-import com.example.demo.security.OAuthSuccessHandler;
-import com.example.demo.security.OAuthUserServiceImpl;
-import com.example.demo.security.TokenProvider;
+import com.example.demo.security.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,7 +28,7 @@ public class WebSecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuthUserServiceImpl oAuthUserService; // 만든 OAuthUserServiceImpl추가
     private final OAuthSuccessHandler oAuthSuccessHandler;
-
+    private final RedirectUrlCookieFilter redirectUrlFilter;
 
 //    @Override
     @Bean
@@ -52,7 +50,7 @@ public class WebSecurityConfig {
                 // 권한 및 요청 설정
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 허용되는 경로
-                        .requestMatchers("/", "/auth/**","/oauth2/**").permitAll()
+                        .requestMatchers("/", "/auth/**", "/oauth2/**").permitAll()
 
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
@@ -61,12 +59,15 @@ public class WebSecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .redirectionEndpoint(redirection ->
                                 redirection.baseUri("/oauth2/login/code/*"))
-                        .userInfoEndpoint(user->user.userService(oAuthUserService))
+                        .authorizationEndpoint(uri->uri.baseUri("/auth/authorize"))
+                        .userInfoEndpoint(user -> user.userService(oAuthUserService))
                         .successHandler(oAuthSuccessHandler)
                 )
+                .exceptionHandling(ex ->
+                        ex.authenticationEntryPoint(new Http403ForbiddenEntryPoint()))
 
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(redirectUrlFilter,UsernamePasswordAuthenticationFilter.class)
 
                 // 최종 필터 체인 구성
                 .build();

@@ -30,6 +30,7 @@ public class RedirectUrlCookieFilter extends OncePerRequestFilter {
             cookie.setHttpOnly(true);
             cookie.setMaxAge(MAX_AGE);
             response.addCookie(cookie);
+            log.info("cookie에 redirect_uri 저장");
             }catch(Exception ex) {
                 logger.error("Could not set user authentication in security context", ex);
                 log.info("Unauthorized request");

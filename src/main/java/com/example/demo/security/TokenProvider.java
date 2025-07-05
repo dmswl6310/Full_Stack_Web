@@ -16,7 +16,7 @@ import java.util.Date;
 public class TokenProvider {
 
     // ✅ 최소 32바이트 이상인 시크릿 키 필요 (HS512 기준)
-    private static final String SECRET_KEY = "rHC46RLCqUL7FSlWEm6EVrmdEuQeAW9CBnEDaPqgIuI=";
+    private static final String SECRET_KEY = "rHC46RLCqfhiewlifhelewgewgewgreshrteyreyreylsighilerghilerUL7FSlWEm6EVrmdEuQeAW9CBnEDaPqgIuI=";
     private static final long EXPIRATION_TIME = 86400000; // 1 day
 
     // ✅ SecretKey 객체로 고정 생성

@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -33,7 +34,6 @@ public class WebSecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuthUserServiceImpl oAuthUserService; // 만든 OAuthUserServiceImpl추가
     private final OAuthSuccessHandler oAuthSuccessHandler;
-//    private final TokenProvider tokenProvider;
 
 
     @Bean
@@ -44,12 +44,12 @@ public class WebSecurityConfig {
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/auth/**", "/oauth2/**").permitAll()
+                        .requestMatchers( "/","/auth/**", "/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .redirectionEndpoint(redirection ->
-                                redirection.baseUri("/oauth2/login/code/*"))
+                                redirection.baseUri("/login/oauth2/code/*"))
                         .authorizationEndpoint(uri->uri.baseUri("/auth/authorize"))
                         .userInfoEndpoint(user -> user.userService(oAuthUserService))
                         .successHandler(oAuthSuccessHandler)
@@ -57,10 +57,7 @@ public class WebSecurityConfig {
                 .exceptionHandling(ex ->
                         ex.authenticationEntryPoint(new Http403ForbiddenEntryPoint()))
                 .addFilterAfter(jwtAuthenticationFilter, CorsFilter.class)
-                .addFilterBefore(redirectUrlFilter, OAuth2AuthorizationCodeGrantFilter.class)
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
-                );
+                .addFilterBefore(redirectUrlFilter, OAuth2AuthorizationRequestRedirectFilter.class);
 
         return http.build();
     }
@@ -69,6 +66,7 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
+        log.info("CORS 설정");
         config.setAllowedOrigins(
                 List.of("http://localhost:3000", "https://app.fullstack-eunji.com","http://app.fullstack-eunji.com")); // 허용할 Origin
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

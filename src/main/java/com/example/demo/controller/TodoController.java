@@ -80,15 +80,15 @@ public class TodoController {
 
         return ResponseEntity.ok().body(response);
     }
-//    @GetMapping("/test")
-//    public ResponseEntity<?> testTodo(){
-//        String str=service.testService();
-//        List<String> list=new ArrayList<>();
-//        list.add(str);
-//
-//        ResponseDTO<String> response=ResponseDTO.<String>builder().data(list).build();
-//        return ResponseEntity.ok().body(response);
-//    }
+    @GetMapping("/test")
+    public ResponseEntity<?> testTodo(){
+        String str=service.testService();
+        List<String> list=new ArrayList<>();
+        list.add(str);
+
+        ResponseDTO<String> response=ResponseDTO.<String>builder().data(list).build();
+        return ResponseEntity.ok().body(response);
+    }
 
     @DeleteMapping
     public ResponseEntity<?> deleteTodo(@AuthenticationPrincipal String userId,@RequestBody TodoDTO dto){

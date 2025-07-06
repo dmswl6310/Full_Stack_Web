@@ -1,27 +1,30 @@
 package com.example.demo.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
+import jakarta.persistence.*;
+import lombok.*;
 
-@Builder //= 오브젝트 생성(생성자 대체)
+import java.util.UUID;
+
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data // 맴버변수의 getter, setter 메서드 구현
+@Data
 @Entity
-@Table(name="Todo")
+@Table(name = "Todo")
 public class TodoEntity {
+
     @Id
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid", strategy="uuid")
     private String id;  // 이 오브젝트의 아이디
+
     private String userId; // 오브젝트 생성 유저 id
-    private String title; // 운동하기
-    private boolean done; // 완료한경우 true
+    private String title;  // 운동하기
+    private boolean done;  // 완료한 경우 true
+
+    // ✅ 저장되기 전에 UUID를 String으로 생성해서 id에 넣어줌
+    @PrePersist
+    public void assignId() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.example.demo.security;
 import com.example.demo.model.UserEntity;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,9 @@ import java.util.Date;
 public class TokenProvider {
 
     // ✅ 최소 32바이트 이상인 시크릿 키 필요 (HS512 기준)
-    private static final String SECRET_KEY = "rHC46RLCqfhiewlifhelewgewgewgreshrteyreyreylsighilerghilerUL7FSlWEm6EVrmdEuQeAW9CBnEDaPqgIuI=";
+    @Value("${JWT_SECRET_KEY}")
+    private String SECRET_KEY;
+
     private static final long EXPIRATION_TIME = 86400000; // 1 day
 
     // ✅ SecretKey 객체로 고정 생성

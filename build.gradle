@@ -45,29 +45,63 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 }
 
-//tasks.named('test') {
-//	useJUnitPlatform()
-//}
+tasks.named('test') {
+	useJUnitPlatform()
+}
 
-task('release') {
-	// ./gradlew build를 먼저 실행해라
-	dependsOn("build")
+// 테스트 없이 빌드
+tasks.register('buildWithoutTest') {
+	group = "release"
+	description = "Build the project without running tests"
 
 	doLast {
 		def stdout = new ByteArrayOutputStream()
-		// exec - 커맨드 라인 프로세서: 터미널에서 실행하는 것과 같음
 		exec {
-			commandLine 'eb', 'setenv', 'SPRING_PROFILES_ACTIVE=prod'
+			executable = "cmd"
+			args = ["/c", "gradlew.bat", "build", "-x", "test"]
 			standardOutput = stdout
 		}
-		// 결과 로깅을 위한 작업
-		println "eb setenv SPRING_PROFILES_ACTIVE=prod :\n$stdout";
-		exec {
-			// eb deploy
-			commandLine 'eb', 'deploy'
-			standardOutput = stdout
-		}
-		println "eb deploy :\n$stdout";
-		println "Release succeded."
+		println "[buildWithoutTest] 실행 결과:\n" + stdout.toString("UTF-8")
 	}
+}
+
+// 환경 변수 설정
+tasks.register('setEnv') {
+	group = "release"
+	description = "Set environment variable for production profile"
+
+	doLast {
+		def stdout = new ByteArrayOutputStream()
+		exec {
+			executable = "eb"
+			args = ["setenv", "SPRING_PROFILES_ACTIVE=prod"]
+			standardOutput = stdout
+		}
+		println "[setEnv] 실행 결과:\n" + stdout.toString("UTF-8")
+	}
+}
+
+// 애플리케이션 배포
+tasks.register('deployApp') {
+	group = "release"
+	description = "Deploy the application using EB CLI"
+
+	doLast {
+		def stdout = new ByteArrayOutputStream()
+		exec {
+			executable = "eb"
+			args = ["deploy"]
+			standardOutput = stdout
+		}
+		println "[deployApp] 실행 결과:\n" + stdout.toString("UTF-8")
+		println "✅ Release succeeded."
+	}
+}
+
+// 전체 릴리즈 프로세스
+tasks.register('release') {
+	group = "release"
+	description = "Run build (no test), setEnv, and deploy in order"
+
+	dependsOn 'buildWithoutTest', 'setEnv', 'deployApp'
 }

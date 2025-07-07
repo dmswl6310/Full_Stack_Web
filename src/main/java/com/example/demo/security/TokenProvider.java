@@ -3,6 +3,7 @@ package com.example.demo.security;
 import com.example.demo.model.UserEntity;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,13 @@ public class TokenProvider {
     @Value("${JWT_SECRET_KEY}")
     private String SECRET_KEY;
 
+    private SecretKey key;
     private static final long EXPIRATION_TIME = 86400000; // 1 day
 
-    // ✅ SecretKey 객체로 고정 생성
-    private final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
-
+    @PostConstruct
+    public void init(){
+        this.key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    }
     /**
      * 토큰 생성
      */

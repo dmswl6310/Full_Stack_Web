@@ -16,16 +16,14 @@ import java.util.Date;
 
 @Service
 public class TokenProvider {
-
-    // ✅ 최소 32바이트 이상인 시크릿 키 필요 (HS512 기준)
-    @Value("${JWT_SECRET_KEY}")
+    @Value("${jwt.secret}")
     private String SECRET_KEY;
 
     private SecretKey key;
-    private static final long EXPIRATION_TIME = 86400000; // 1 day
 
     @PostConstruct
     public void init(){
+        // ✅ 최소 32바이트 이상인 시크릿 키 필요 (HS512 기준)
         this.key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
     /**

@@ -16,14 +16,15 @@ import java.util.Optional;
 
 @Component
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+    private final TokenProvider tokenProvider;
     public static final String REDIRECT_URI_PARAM="redirect_url";
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         log.info("auth succeded");
-        TokenProvider tokenProvider=new TokenProvider();
+
         String token=tokenProvider.create(authentication);
 
         Optional<Cookie> oCookie= Arrays.stream(request.getCookies()).filter(cookie->cookie.getName().equals(REDIRECT_URI_PARAM)).findFirst();
